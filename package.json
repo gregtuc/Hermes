@@ -1,0 +1,27 @@
+{
+	"name": "server",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node server.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"cors": "^2.8.5",
+		"csurf": "^1.11.0",
+		"express": "^4.17.2",
+		"express-bouncer": "^0.2.0",
+		"helmet": "^5.0.2",
+		"node-cache": "^5.1.2",
+		"peer": "^0.6.1",
+		"xss": "^1.0.10"
+	},
+	"devDependencies": {
+		"eslint": "^8.8.0",
+		"eslint-plugin-security": "^1.4.0"
+	}
+}

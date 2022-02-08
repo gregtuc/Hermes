@@ -1,0 +1,11 @@
+{
+	//`cd <this directory>` and type `eslint .` for static security analysis
+	"plugins": ["security"],
+	"extends": ["plugin:security/recommended"],
+	"parserOptions": {
+		"ecmaVersion": 2017
+	},
+	"env": {
+		"es6": true
+	}
+}

@@ -1,0 +1,186 @@
+<html>
+	<head>
+		<title>Hermes</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script src="./scripts/jquery.min.js"></script>
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"
+			integrity="sha512-dqw6X88iGgZlTsONxZK9ePmJEFrmHwpuMrsUChjAw1mRUhUITE5QU9pkcSox+ynfLhL15Sv2al5A0LVyDCmtUw=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		></script>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+			integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		/>
+		<link rel="shortcut icon" href="#" />
+		<script src="./scripts/semantic.min.js"></script>
+		<script src="./scripts/jszip.min.js"></script>
+		<script src="./scripts/crypto-js.min.js"></script>
+		<script src="./scripts/drag-drop.js"></script>
+		<script src="./scripts/peerjs.min.js"></script>
+		<script src="./signalprotocol/libsignal-protocol.js"></script>
+		<script src="./signalprotocol/helpers.js"></script>
+		<script src="./signalprotocol/InMemorySignalProtocolStore.js"></script>
+		<script src="./signalprotocol/zipService.js"></script>
+		<script src="./signalprotocol/SignalProtocol.js"></script>
+		<script src="ui-methods.js"></script>
+		<script src="./filestorage/filestorage.js"></script>
+		<script src="./p2p/p2p.js"></script>
+		<script src="./env/env.js"></script>
+
+		<style type="text/css">
+			body {
+				background-color: hsl(233, 4%, 56%);
+			}
+
+			body > .grid {
+				height: 100%;
+			}
+			.image {
+				margin-top: -100px;
+			}
+			.column {
+				max-width: 750px;
+			}
+			.step-one-header {
+				font-family: "Trebuchet MS", sans-serif;
+				font-size: 5em;
+				letter-spacing: -2px;
+				text-transform: uppercase;
+			}
+			#drop-zone:hover {
+				background-color: rgb(226, 246, 251);
+			}
+			.clipboard:hover {
+				transform: scale(1.5);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="ui middle aligned center aligned grid">
+			<div class="column">
+				<div id="step-one" class="ui transition hidden">
+					<img src="./images/hermes.png" class="ui image" />
+					<h1 class="ui step-one-header">Hermes</h1>
+					<button id="exchange-button" class="ui primary button huge">
+						Begin authentication
+					</button>
+					<h3
+						class="ui header"
+						style="font-family: 'Trebuchet MS', sans-serif; font-size: 1.5em"
+					>
+						Free, fast, and secure peer-peer file sharing built on top of the
+						Signal Protocol.
+					</h3>
+					<h3 class="ui header" style="font-style: italic"></h3>
+				</div>
+				<div id="step-two" class="ui transition hidden">
+					<i class="lock icon" style="font-size: 200%"></i>
+					<h2 class="ui header">This is your personal Authenticator number</h2>
+					<h3 id="timer" class="ui header">Expires on:</h3>
+					<div class="ui action input huge">
+						<input
+							id="authenticator-code"
+							type="text"
+							class="copyInput"
+							style="
+								text-align: center;
+								font-size: calc(150%);
+								font-weight: bold;
+								letter-spacing: 0.5em;
+							"
+							readonly="readonly"
+						/>
+						<button
+							id="copy-button"
+							type="button"
+							name="copyToken"
+							value="copy"
+							class="copyToken ui right icon button"
+						>
+							<i class="clipboard icon"></i>
+						</button>
+					</div>
+					<br /><br />
+					<h3 class="ui header">Send this to your partner!</h3>
+					<button id="return-step-one-button" class="ui left button">
+						<i class="left arrow icon"></i>
+						Back
+					</button>
+					<button id="fade-step-two-button" class="ui right primary button">
+						Continue
+						<i class="right arrow icon"></i>
+					</button>
+				</div>
+				<div id="step-three" class="ui transition hidden">
+					<i class="lock icon" style="font-size: 200%"></i>
+					<h2 class="ui header">Enter your partners authenticator number</h2>
+					<div class="ui action input huge focus">
+						<input
+							id="authenticator-input"
+							type="text"
+							class="copyInput"
+							style="
+								text-align: center;
+								font-size: calc(150%);
+								font-weight: bold;
+								letter-spacing: 0.5em;
+							"
+							maxlength="8"
+							autofocus
+						/>
+					</div>
+					<br /><br />
+					<button id="return-step-two-button" class="ui left button">
+						<i class="left arrow icon"></i>
+						Back
+					</button>
+					<button id="fade-step-three-button" class="ui right primary button">
+						Continue
+						<i class="right arrow icon"></i>
+					</button>
+				</div>
+				<div id="step-four" class="ui transition hidden">
+					<div id="connection-message" class="ui ignored info attached message">
+						<p></p>
+					</div>
+					<div
+						id="drop-zone"
+						class="ui input placeholder segment"
+						style="border: 2px solid black"
+					>
+						<div class="ui icon header">
+							<i class="cloud upload icon"></i>
+							Drag and drop files, or manually select them below.
+						</div>
+						<input
+							type="file"
+							id="file-drop-zone"
+							webkitdirectory
+							directory
+							multiple
+						/>
+					</div>
+					<div id="step-four-b" class="ui transition hidden">
+						<div class="ui placeholder segment">
+							<div class="ui active dimmer">
+								<div id="activityLog" class="ui indeterminate text loader">
+									Preparing Files
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--
+					<div id="activityLog" class="ui small feed segment">
+						<h4 class="ui header">Activity</h4>
+					</div>-->
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
