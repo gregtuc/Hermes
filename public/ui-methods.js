@@ -217,9 +217,10 @@ function setTimerValue() {
 		this.setTime(this.getTime() + h);
 		return this;
 	};
-	const date = new Date().addHours(4);
+	var expirationDate = new Date();
+	expirationDate.setHours(expirationDate.getHours() + 12);
 	$("#timer").append(
-		" " + date.toDateString() + " at " + date.toLocaleTimeString()
+		" " + expirationDate.toDateString() + " at " + expirationDate.toLocaleTimeString()
 	);
 }
 
