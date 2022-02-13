@@ -48,7 +48,6 @@ class SignalServerStore {
 			);
 			xhttp.setRequestHeader("Content-type", "application/json");
 			xhttp.send(data);
-
 			//Register the key locally
 			this.store[userId] = preKeyBundle;
 		});
@@ -273,8 +272,8 @@ async function fileSender(file) {
 				type: encryptedMessage.type,
 				body: encryptedMessage.body,
 			});
-			//Send this file to the peer.
-			connectToPeer(packagedMessage);
+			//Send the file.
+			sendFileToPeer(packagedMessage);
 		});
 }
 
@@ -295,6 +294,7 @@ async function fileReceiver(encryptedMessage) {
 				"hermes"
 			);
 			downloadBlob(downloadFile, "hermes");
+			logActivity(`Done downloading.`);
 		});
 }
 
@@ -324,7 +324,6 @@ function downloadBlob(file, name) {
 	a.download = name;
 	a.target = "_blank";
 	logActivity(`Downloading...`);
-	removeStepFourB();
 	a.click();
 }
 

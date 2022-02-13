@@ -86,6 +86,8 @@ function fadeOutStepThree() {
 		} else {
 			//TODO: Fix this security vulnerability, should pass the value not re-fetch it from DOM.
 			sessionStorage.setItem("user2", $("#authenticator-input").val());
+			//Create the p2p connection
+			connectToPeer();
 			//Set the connection message for the user
 			setConnectionMessage();
 			$("#step-three").transition({

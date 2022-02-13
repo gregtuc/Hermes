@@ -27,16 +27,15 @@ function initializePeerConnection(authenticatorCode) {
 	});
 }
 
-/**
- * Handles sending data to other peers.
- * @param {string} file
- */
-function connectToPeer(file) {
-	const conn = peer.connect(sessionStorage.getItem("user2"));
-	logActivity(`Connection established with peer ID: ${conn.peer}.`);
+function connectToPeer() {
+	conn = peer.connect(sessionStorage.getItem("user2"));
 	conn.on("open", () => {
-		logActivity(`Sending file to peer ID: ${conn.peer}.`);
-		conn.send(file);
-		removeStepFourB();
+		logActivity(`Connection established with peer ID: ${conn.peer}.`);
 	});
+}
+
+function sendFileToPeer(file) {
+	logActivity(`Sending file...`);
+	conn.send(file);
+	logActivity(`Done sending.`);
 }
