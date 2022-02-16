@@ -9,6 +9,7 @@ var cors = require("cors");
 var bodyparser = require("body-parser");
 const helmet = require("helmet"); //sets http headers for security
 var bouncer = require("express-bouncer")(500, 900000); //rate limiter
+const { body, validationResult, param } = require("express-validator"); //validator
 
 //white listing localhost for rate-limiter
 bouncer.whitelist.push("127.0.0.1");
@@ -50,40 +51,72 @@ app.get("/", (req, res) => {
 });
 
 //---------Signal----------//
-app.post("/registerNewPreKeyBundle/:userId", (req, res) => {
-	const userId = req.params.userId;
-	const preKeyBundle = req.body;
-	if (userId && preKeyBundle && !signalCache.has(userId)) {
-		const success = signalCache.set(userId, preKeyBundle, 86400);
-		if (success) {
+app.post(
+	"/registerNewPreKeyBundle/:userId",
+	bouncer.block,
+	param("userId").isString().isLength({ max: 8 }),
+	body("identityKey").isString().isLength({ max: 33 }),
+	body("preKeys.keyId").isNumeric().isLength({ min: 0, max: 20 }),
+	body("preKeys.publicKey").isString().isLength({ max: 33 }),
+	body("registrationId").isNumeric().isLength({ min: 0, max: 20 }),
+	body("signedPreKey.keyId").isNumeric().isLength({ min: 0, max: 20 }),
+	body("signedPreKey.publicKey").isString().isLength({ max: 33 }),
+	body("signedPreKey.signature").isString().isLength({ max: 64 }),
+	(req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const userId = req.params.userId;
+		const preKeyBundle = req.body;
+		if (userId && preKeyBundle && !signalCache.has(userId)) {
+			const success = signalCache.set(userId, preKeyBundle, 86400);
+			if (success) {
+				bouncer.reset(req); //reset rate-limiter
+				res.status(200).send();
+			} else {
+				res.status(500).send();
+			}
+		} else {
+			res.status(400).send();
+		}
+	}
+);
+app.post(
+	"/getPreKeyBundle",
+	bouncer.block,
+	body("userId").isString().isLength({ max: 8 }),
+	(req, res) => {
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const userId = req.body.userId;
+		if (userId && signalCache.has(userId)) {
+			const preKeyBundle = signalCache.get(userId);
+			bouncer.reset(req); //reset rate-limiter
+			res.status(200).send(preKeyBundle);
+		} else {
+			res.status(400).send();
+		}
+	}
+);
+app.post(
+	"/checkUserExists/:userId",
+	bouncer.block,
+	param("userId").isString().isLength({ max: 8 }),
+	(req, res) => {
+		const userId = req.params.userId;
+		if (userId && signalCache.has(userId)) {
 			bouncer.reset(req); //reset rate-limiter
 			res.status(200).send();
 		} else {
-			res.status(500).send();
+			res.status(404).send();
 		}
-	} else {
-		res.status(400).send();
 	}
-});
-app.post("/getPreKeyBundle", bouncer.block, (req, res) => {
-	const userId = req.body.userId;
-	if (userId && signalCache.has(userId)) {
-		const preKeyBundle = signalCache.get(userId);
-		bouncer.reset(req); //reset rate-limiter
-		res.status(200).send(preKeyBundle);
-	} else {
-		res.status(400).send();
-	}
-});
-app.post("/checkUserExists/:userId", bouncer.block, (req, res) => {
-	const userId = req.params.userId;
-	if (userId && signalCache.has(userId)) {
-		bouncer.reset(req); //reset rate-limiter
-		res.status(200).send();
-	} else {
-		res.status(404).send();
-	}
-});
+);
 app.listen(port, () => {
 	console.log(`Listening on ${port}`);
 });
